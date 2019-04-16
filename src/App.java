@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class App extends Application {
+
     public static final String EMPLOYEES_FILE_NAME = "employees.txt";
     public static final String ADMINS_FILE_NAME = "administrators.txt";
 
