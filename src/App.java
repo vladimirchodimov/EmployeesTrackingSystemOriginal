@@ -19,6 +19,7 @@ import model.FXControlDataLoader;
 import view.DataValidator;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 public class App extends Application {
@@ -617,6 +618,8 @@ public class App extends Application {
                 clientData[1] = textClientEmail.getText().trim();
                 FileContentsWriter writer = new FileContentsWriter("clients.txt", clientData);
                 writer.writeToFile();
+                loaderClients = new FXControlDataLoader("clients.txt");
+                comboClients.setItems(FXCollections.observableArrayList(loaderClients.setComboModel()));
             }
         } else {
             Alert a = new Alert(Alert.AlertType.WARNING, message);
@@ -625,12 +628,12 @@ public class App extends Application {
         }
     }
 
-    private  void clearClientButtonOnClick() {
+    private void clearClientButtonOnClick() {
         textClientName.setText("");
         textClientEmail.setText("");
     }
 
-    private  void toLoginFromClientButtonOnClick() {
+    private void toLoginFromClientButtonOnClick() {
         clearClientButtonOnClick();
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
@@ -678,6 +681,9 @@ public class App extends Application {
                 newEmployee[2] = textEmployeePassword.getText().trim();
                 FileContentsWriter writer = new FileContentsWriter("employees.txt", newEmployee);
                 writer.writeToFile();
+                loaderEmployees = new FXControlDataLoader("employees.txt");
+                comboEmployee.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
+                comboEmployeeForPeriod.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
                 Alert a = new Alert(Alert.AlertType.INFORMATION, "Записът е успешен.");
                 a.setTitle("Валидация акаунт на нов служител");
                 a.showAndWait();
@@ -689,13 +695,17 @@ public class App extends Application {
         }
     }
 
-    private  void clearEmployeeButtonOnClick() {
+    private void clearEmployeeButtonOnClick() {
         textEmployeeName.setText("");
         textEmployeeEmail.setText("");
         textEmployeePassword.setText("");
     }
 
     private void toLoginFromEmployeeButtonOnClick() {
+        userFullName = "";
+        radioEmployee.setSelected(true);
+        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+        selectionModel.select(0);
         clearEmployeeButtonOnClick();
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
@@ -709,6 +719,8 @@ public class App extends Application {
         tableEmployeeStats.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
         comboEmployee.setValue(null);
         workedHoursSummary.setVisible(false);
+        userFullName = "";
+        radioEmployee.setSelected(true);
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
         stage.show();
@@ -720,5 +732,57 @@ public class App extends Application {
         seeEntireStats.setVisible(false);
         workedHoursSummary.setVisible(false);
         comboEmployee.setValue(null);
+    }
+
+    private void clearCboxAndDatePickersButtonOnClick() {
+        comboEmployeeForPeriod.setValue(null);
+        datePickerStart.setValue(null);
+        datePickerEnd.setValue(null);
+        workedHoursSummaryForPeriod.setText("");
+        loaderTable = new FXControlDataLoader("protocols.txt");
+        tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
+    }
+
+    private void applyFiltersButtonOnClick() {
+        String message = "";
+        if (comboEmployeeForPeriod.getValue() == null) {
+            message += "Не сте избрали служител! ";
+        }
+        if (datePickerStart.getValue() == null) {
+            message += "Не сте избрали начална дата! ";
+
+        }
+        if (datePickerEnd.getValue() == null) {
+            message += "Не сте избрали крайна дата! ";
+
+        }
+        if (message.length() == 0) {
+            LocalDate localDateStart = datePickerStart.getValue();
+            LocalDate localDateEnd = datePickerEnd.getValue();
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date dateStart = java.sql.Date.valueOf(localDateStart);
+            Date dateEnd = java.sql.Date.valueOf(localDateEnd);
+            String startDate = formatter.format(dateStart).toString();
+            String endDate = formatter.format(dateEnd).toString();
+            loaderTable = new FXControlDataLoader("protocols.txt", comboEmployeeForPeriod.getValue(), startDate, endDate);
+            tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.updateTableModelForPeriod()));
+            workedHoursSummaryForPeriod.setText(FXControlDataLoader.workedHoursSummaryForPeriod);
+        } else {
+            Alert a = new Alert(Alert.AlertType.WARNING, message);
+            a.setTitle("Търсене по служител и период");
+            a.showAndWait();
+        }
+    }
+
+    private void toLoginFromEmployeeStatsForPeriodButtonOnClick() {
+        clearCboxAndDatePickersButtonOnClick();
+        userFullName = "";
+        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+        selectionModel.select(0);
+        radioEmployee.setSelected(true);
+        stage.setScene(loginScene);
+        stage.setTitle("Система за следене на работното време");
+        stage.show();
+
     }
 }
