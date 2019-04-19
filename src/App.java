@@ -218,7 +218,7 @@ public class App extends Application {
         saveClientButton.setOnAction(e -> saveClientButtonOnClick());
         clearClientButton = new Button("Изчисти");
         clearClientButton.setMinWidth(80);
-        clearClientButton.setOnAction(e -> clearClientButtonOnClick() );
+        clearClientButton.setOnAction(e -> clearClientButtonOnClick());
         toLoginFromClientButton = new Button("Към логин екрана");
         toLoginFromClientButton.setMinWidth(80);
         toLoginFromClientButton.setOnAction(e -> toLoginFromClientButtonOnClick());
@@ -271,10 +271,10 @@ public class App extends Application {
 
         saveEmployeeButton = new Button("Запази");
         saveEmployeeButton.setMinWidth(80);
-        saveEmployeeButton.setOnAction(e -> saveEmployeeButtonOnClick() );
+        saveEmployeeButton.setOnAction(e -> saveEmployeeButtonOnClick());
         clearEmployeeButton = new Button("Изчисти");
         clearEmployeeButton.setMinWidth(80);
-        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick() );
+        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick());
         toLoginFromEmployeeButton = new Button("Към логин екрана");
         toLoginFromEmployeeButton.setMinWidth(80);
         toLoginFromEmployeeButton.setOnAction(e -> toLoginFromEmployeeButtonOnClick());
@@ -318,7 +318,7 @@ public class App extends Application {
 
         seeEntireStats = new Button("За всички служители");
         seeEntireStats.setMinWidth(120);
-        seeEntireStats.setOnAction(e -> seeEntireStatsButtonOnClick() );
+        seeEntireStats.setOnAction(e -> seeEntireStatsButtonOnClick());
         seeEntireStats.setVisible(false);
         VBox emploeeStatsVbox = new VBox(20, comboEmployee, seeEntireStats);
 
@@ -339,7 +339,8 @@ public class App extends Application {
         columnWorkedHours.setCellValueFactory(
                 new PropertyValueFactory<EmployeeStatsModel, String>("WorkedHours"));
         columnWorkedHours.setMinWidth(150);
-        columnWorkedHours.setStyle( "-fx-alignment: CENTER;");
+        columnDate.setStyle("-fx-alignment: CENTER;");
+        columnWorkedHours.setStyle("-fx-alignment: CENTER;");
         tableEmployeeStats = new TableView<EmployeeStatsModel>();
         tableEmployeeStats.getColumns().addAll(columnEmployee, columnClient, columnDate, columnWorkedHours);
         loaderTable = new FXControlDataLoader("protocols.txt");
@@ -356,7 +357,7 @@ public class App extends Application {
         Region spacer = new Region();
         spacer.setPrefWidth(220);
 
-        HBox paneBottomEmployeeStats = new HBox(toLoginFromEmployeeStatsButton , spacer, workedHoursSummary);
+        HBox paneBottomEmployeeStats = new HBox(toLoginFromEmployeeStatsButton, spacer, workedHoursSummary);
         paneBottomEmployeeStats.setAlignment(Pos.CENTER);
         paneBottomEmployeeStats.setPadding(new Insets(25, 10, 20, 350));
 
@@ -366,6 +367,85 @@ public class App extends Application {
         paneMainEmployeeStats.setCenter(paneCenterEmployeeStats);
         paneMainEmployeeStats.setBottom(paneBottomEmployeeStats);
         paneMainEmployeeStats.setPadding(new Insets(40, 10, 180, 10));
+
+        //tabEmoloyeeStatsForPeriod
+        Text textHeadingEmployeeStatsForPeriod = new Text("Изберете служител, начална и крайна дата");
+        textHeadingEmployeeStatsForPeriod.setFont(new Font("Verdana", 18));
+        HBox paneTopEmployeeStatsForPeriod = new HBox(textHeadingEmployeeStatsForPeriod);
+        paneTopEmployeeStatsForPeriod.setAlignment(Pos.CENTER);
+        paneTopEmployeeStatsForPeriod.setPadding(new Insets(10, 10, 25, 10));
+
+        Label labelEmployeeForPeriodCombo = new Label("Избери служител");
+
+        comboEmployeeForPeriod = new ComboBox<String>();
+        comboEmployeeForPeriod.setPromptText("Избери служител");
+        comboEmployeeForPeriod.setPrefWidth(140);
+        loaderEmployees = new FXControlDataLoader("employees.txt");
+        comboEmployeeForPeriod.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
+
+        Label dateStartLabel = new Label("Избери начална дата");
+        datePickerStart = new DatePicker();
+
+        Label dateEndLabel = new Label("Избери крайна дата");
+        datePickerEnd = new DatePicker();
+
+        clearCboxAndDatePickersButton = new Button("Изчисти филтъра");
+        clearCboxAndDatePickersButton.setOnAction(e -> clearCboxAndDatePickersButtonOnClick());
+        applyFiltersButton = new Button("Приложи филтъра");
+        applyFiltersButton.setOnAction(e -> applyFiltersButtonOnClick());
+
+
+        VBox datePickerStartVbox = new VBox(10, dateStartLabel, datePickerStart);
+        VBox datePickerEndVbox = new VBox(10, dateEndLabel, datePickerEnd);
+        VBox emploeeStatsVboxForPeriod = new VBox(20, comboEmployeeForPeriod, datePickerStartVbox, datePickerEndVbox, clearCboxAndDatePickersButton, applyFiltersButton);
+
+        TableColumn<EmployeeStatsModel, String> columnEmployeePeriod =
+                new TableColumn<EmployeeStatsModel, String>("СЛУЖИТЕЛ");
+        TableColumn<EmployeeStatsModel, String> columnClientPeriod =
+                new TableColumn<EmployeeStatsModel, String>("КЛИЕНТ");
+        TableColumn<EmployeeStatsModel, String> columnDatePeriod =
+                new TableColumn<EmployeeStatsModel, String>("ДАТА");
+        TableColumn<EmployeeStatsModel, String> columnWorkedHoursPeriod =
+                new TableColumn<EmployeeStatsModel, String>("РАБОТЕНО ВРЕМЕ");
+        columnEmployeePeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("EmployeeName"));
+        columnClientPeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("ClientName"));
+        columnDatePeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("Date"));
+        columnWorkedHoursPeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("WorkedHours"));
+        columnWorkedHoursPeriod.setMinWidth(150);
+        columnDatePeriod.setStyle("-fx-alignment: CENTER;");
+        columnWorkedHoursPeriod.setStyle("-fx-alignment: CENTER;");
+        tableEmployeeStatsForPeriod = new TableView<EmployeeStatsModel>();
+        tableEmployeeStatsForPeriod.getColumns().addAll(columnEmployeePeriod, columnClientPeriod, columnDatePeriod, columnWorkedHoursPeriod);
+        loaderTable = new FXControlDataLoader("protocols.txt");
+        tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
+        tableEmployeeStatsForPeriod.setMinWidth(650);
+        tableEmployeeStatsForPeriod.setMinHeight(300);
+
+        HBox paneCenterEmployeeStatsForPeriod = new HBox(20, emploeeStatsVboxForPeriod, tableEmployeeStatsForPeriod);
+        paneCenterEmployeeStatsForPeriod.setAlignment(Pos.TOP_CENTER);
+
+
+        toLoginFromEmployeeStatsForPeriodButton = new Button("Към логин екрана");
+        toLoginFromEmployeeStatsForPeriodButton.setMinWidth(80);
+        toLoginFromEmployeeStatsForPeriodButton.setOnAction(e -> toLoginFromEmployeeStatsForPeriodButtonOnClick());
+        workedHoursSummaryForPeriod = new Label();
+        Region spacerForPeriod = new Region();
+        spacerForPeriod.setPrefWidth(220);
+
+        HBox paneBottomEmployeeStatsForPeriod = new HBox(toLoginFromEmployeeStatsForPeriodButton, spacerForPeriod, workedHoursSummaryForPeriod);
+        paneBottomEmployeeStatsForPeriod.setAlignment(Pos.CENTER);
+        paneBottomEmployeeStatsForPeriod.setPadding(new Insets(25, 10, 20, 350));
+
+        BorderPane paneMainEmployeeStatsForPeriod = new BorderPane();
+        BorderPane.setMargin(paneBottomNewEmployee, new Insets(0, 0, 0, 70));
+        paneMainEmployeeStatsForPeriod.setTop(paneTopEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setCenter(paneCenterEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setBottom(paneBottomEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setPadding(new Insets(40, 10, 180, 10));
 
 
         tabPane = new TabPane();
