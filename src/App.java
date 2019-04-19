@@ -208,13 +208,12 @@ public class App extends Application {
         saveClientButton = new Button("Запази");
         saveClientButton.setMinWidth(80);
         saveClientButton.setOnAction(e -> saveClientButtonOnClick());
-        //saveClientButton.setDefaultButton(true);
         clearClientButton = new Button("Изчисти");
         clearClientButton.setMinWidth(80);
-        clearClientButton.setOnAction(e -> clearClientButtonOnClick() );                        //TODO
+        clearClientButton.setOnAction(e -> clearClientButtonOnClick() );
         toLoginFromClientButton = new Button("Към логин екрана");
         toLoginFromClientButton.setMinWidth(80);
-        toLoginFromClientButton.setOnAction(e -> toLoginFromClientButtonOnClick());              //TODO
+        toLoginFromClientButton.setOnAction(e -> toLoginFromClientButtonOnClick());
 
         HBox paneBottomNewClient = new HBox(20, saveClientButton, clearClientButton, toLoginFromClientButton);
         paneBottomNewClient.setAlignment(Pos.CENTER);
@@ -296,12 +295,16 @@ public class App extends Application {
         loaderEmployees = new FXControlDataLoader("employees.txt");
         comboEmployee.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
         comboEmployee.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override public void changed(ObservableValue ov, String t, String t1) {
-                FXControlDataLoader tableUpdater = new FXControlDataLoader("protocols.txt", comboEmployee.getValue());
-                tableEmployeeStats.setItems(FXCollections.observableArrayList(tableUpdater.updateTableModel()));
-                seeEntireStats.setVisible(true);
-                workedHoursSummary.setVisible(true);
-                workedHoursSummary.setText(FXControlDataLoader.workedHoursSummary);
+            @Override
+            public void changed(ObservableValue ov, String t, String t1) {
+                if (comboEmployee.getValue() == null) {
+                } else {
+                    FXControlDataLoader tableUpdater = new FXControlDataLoader("protocols.txt", comboEmployee.getValue());
+                    tableEmployeeStats.setItems(FXCollections.observableArrayList(tableUpdater.updateTableModel()));
+                    seeEntireStats.setVisible(true);
+                    workedHoursSummary.setVisible(true);
+                    workedHoursSummary.setText(FXControlDataLoader.workedHoursSummary);
+                }
             }
         });
 
@@ -345,17 +348,7 @@ public class App extends Application {
         Region spacer = new Region();
         spacer.setPrefWidth(220);
 
-        /*
-        clearEmployeeButton = new Button("Изчисти");
-        clearEmployeeButton.setMinWidth(80);
-        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick() );
-        toLoginFromEmployeeButton = new Button("Към логин екрана");
-        toLoginFromEmployeeButton.setMinWidth(80);
-        toLoginFromEmployeeButton.setOnAction(e -> toLoginFromEmployeeButtonOnClick());
-        */
-
         HBox paneBottomEmployeeStats = new HBox(toLoginFromEmployeeStatsButton , spacer, workedHoursSummary);
-        //HBox.setHgrow(spacer, Priority.ALWAYS);
         paneBottomEmployeeStats.setAlignment(Pos.CENTER);
         paneBottomEmployeeStats.setPadding(new Insets(25, 10, 20, 350));
 
@@ -547,7 +540,6 @@ public class App extends Application {
     private void saveEmployeeButtonOnClick() {
         DataValidator emailValidator = new DataValidator();
         AccountChecker emailChecker = new AccountChecker("employees.txt", textEmployeeEmail.getText().trim());
-        //ClientAndEmployeeChecker checker = new ClientAndEmployeeChecker(textEmployeeName.getText().trim(), textEmployeeEmail.getText().trim(), "emplyees.txt");
         String message = "";
         String[] employeeData = new String[3];
         if (textEmployeeName.getText().trim().length() == 0) {
