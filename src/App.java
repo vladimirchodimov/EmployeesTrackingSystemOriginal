@@ -67,6 +67,14 @@ public class App extends Application {
     Button toLoginFromEmployeeStatsButton;
     Button seeEntireStats;
     Label workedHoursSummary;
+    TableView<EmployeeStatsModel> tableEmployeeStatsForPeriod;
+    ComboBox<String> comboEmployeeForPeriod;
+    DatePicker datePickerStart;
+    DatePicker datePickerEnd;
+    Label workedHoursSummaryForPeriod;
+    Button toLoginFromEmployeeStatsForPeriodButton;
+    Button clearCboxAndDatePickersButton;
+    Button applyFiltersButton;
     TabPane tabPane;
     Tab tabClient;
 

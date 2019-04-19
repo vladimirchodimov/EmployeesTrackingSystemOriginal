@@ -1,4 +1,5 @@
 package model;
+import controller.DateComparator;
 import controller.FileContentsReader;
 
 import java.util.ArrayList;
@@ -13,9 +14,9 @@ public class FXControlDataLoader {
     private String fileName;
     private String employeeName;
     public static String workedHoursSummary;
-
-
-
+    public static String workedHoursSummaryForPeriod;
+    private String startDate;
+    private String endDate;
 
     public FXControlDataLoader(String fileName) {
         this.fileName = fileName;
@@ -24,6 +25,13 @@ public class FXControlDataLoader {
     public FXControlDataLoader(String fileName, String employeeName) {
         this.fileName = fileName;
         this.employeeName = employeeName;
+    }
+
+    public FXControlDataLoader(String fileName, String employeeName, String startDate, String endDate) {
+        this.fileName = fileName;
+        this.employeeName = employeeName;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public ArrayList<String> setComboModel() {
@@ -43,25 +51,56 @@ public class FXControlDataLoader {
         tableModel = new ArrayList<EmployeeStatsModel>();
         String allRecords = contentsLoader.fetchAllRecordsFromFile();
         String[] allRecordsArray = allRecords.split("\n");
-        int indexEmployeeName;
+        int indexEmployeeName = 0;
         String workedHoursAll;
         int hours = 0;
         int minutes = 0;
 
         for (int i = 0; i < allRecordsArray.length; i++) {
-                indexEmployeeName = allRecordsArray[i].toLowerCase().indexOf(employeeName.toLowerCase());
-                if ((indexEmployeeName != -1)) {
-                    String[] rowArray = allRecordsArray[i].split("\t");
-                    EmployeeStatsModel rowModel = new EmployeeStatsModel(rowArray[0], rowArray[1],rowArray[2],rowArray[3]);
+            indexEmployeeName = allRecordsArray[i].toLowerCase().indexOf(employeeName.toLowerCase());
+            if ((indexEmployeeName != -1)) {
+                String[] rowArray = allRecordsArray[i].split("\t");
+                EmployeeStatsModel rowModel = new EmployeeStatsModel(rowArray[0], rowArray[1],rowArray[2],rowArray[3]);
+                String[] workedHours = rowArray[3].split(":");
+                hours += Integer.parseInt(workedHours[0]);
+                minutes += Integer.parseInt(workedHours[1]);
+                tableModel.add(rowModel);
+            }
+        }
+        hours += minutes / 60;
+        minutes = minutes % 60;
+        workedHoursSummary = " Общо: " + hours + ":" + minutes + " ч.";
+        return tableModel;
+    }
+
+    public ArrayList<EmployeeStatsModel> updateTableModelForPeriod() {
+        contentsLoader = new FileContentsReader(fileName);
+        tableModel = new ArrayList<EmployeeStatsModel>();
+        String allRecords = contentsLoader.fetchAllRecordsFromFile();
+        String[] allRecordsArray = allRecords.split("\n");
+        int indexEmployeeName;
+        String workedHoursAll;
+        int hours = 0;
+        int minutes = 0;
+        DateComparator comparatorStart = new DateComparator();
+        DateComparator comparatorEnd = new DateComparator();
+
+        for (int i = 0; i < allRecordsArray.length; i++) {
+            indexEmployeeName = allRecordsArray[i].toLowerCase().indexOf(employeeName.toLowerCase());
+            if ((indexEmployeeName != -1)) {
+                String[] rowArray = allRecordsArray[i].split("\t");
+                if ((comparatorStart.compareDates(rowArray[2], startDate)) && (comparatorEnd.compareDates(endDate, rowArray[2]))) {
+                    EmployeeStatsModel rowModel = new EmployeeStatsModel(rowArray[0], rowArray[1], rowArray[2], rowArray[3]);
                     String[] workedHours = rowArray[3].split(":");
                     hours += Integer.parseInt(workedHours[0]);
                     minutes += Integer.parseInt(workedHours[1]);
                     tableModel.add(rowModel);
                 }
+            }
         }
         hours += minutes / 60;
         minutes = minutes % 60;
-        workedHoursSummary = " Общо: " + hours + ":" + minutes + " ч.";
+        workedHoursSummaryForPeriod = " Общо: " + hours + ":" + minutes + " ч.";
         return tableModel;
     }
 
