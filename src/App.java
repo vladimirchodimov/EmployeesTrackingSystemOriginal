@@ -452,16 +452,18 @@ public class App extends Application {
         tabClient = new Tab("Регистрирай нов клиент");
         Tab tabEmployee = new Tab("Регистрирай нов служител");
         Tab tabEmployeeStats = new Tab("Виж статистика за служител");
-        Tab tabStatsSummary = new Tab("Виж обща статистика");
+        Tab tabEmployeeStatsForPeriod = new Tab("Виж статистика за слувител за период");
         tabClient.setContent(paneMainClient);
         tabEmployee.setContent(paneMainEmployeeForm);
         tabEmployeeStats.setContent(paneMainEmployeeStats);
+        tabEmployeeStatsForPeriod.setContent(paneMainEmployeeStatsForPeriod);
 
         tabClient.setOnSelectionChanged(event -> {
             if (tabClient.isSelected()) {
                 saveClientButton.setDefaultButton(true);
                 saveEmployeeButton.setDefaultButton(false);
                 toLoginFromEmployeeStatsButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
             }
         });
 
@@ -470,6 +472,7 @@ public class App extends Application {
                 saveEmployeeButton.setDefaultButton(true);
                 saveClientButton.setDefaultButton(false);
                 toLoginFromEmployeeStatsButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
             }
         });
 
@@ -478,16 +481,25 @@ public class App extends Application {
                 toLoginFromEmployeeStatsButton.setDefaultButton(true);
                 saveClientButton.setDefaultButton(false);
                 saveEmployeeButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
+            }
+        });
+
+        tabEmployeeStatsForPeriod.setOnSelectionChanged(event -> {
+            if (tabEmployeeStatsForPeriod.isSelected()) {
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(true);
+                saveClientButton.setDefaultButton(false);
+                saveEmployeeButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsButton.setDefaultButton(false);
 
             }
         });
 
-
         tabClient.setClosable(false);
         tabEmployee.setClosable(false);
         tabEmployeeStats.setClosable(false);
-        tabStatsSummary.setClosable(false);
-        tabPane.getTabs().addAll(tabClient, tabEmployee, tabEmployeeStats, tabStatsSummary);
+        tabEmployeeStatsForPeriod.setClosable(false);
+        tabPane.getTabs().addAll(tabClient, tabEmployee, tabEmployeeStats, tabEmployeeStatsForPeriod);
         adminScene = new Scene(tabPane, 900, 500);
     }
 
