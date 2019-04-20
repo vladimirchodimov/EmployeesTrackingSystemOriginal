@@ -19,6 +19,7 @@ import model.FXControlDataLoader;
 import view.DataValidator;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 public class App extends Application {
@@ -67,6 +68,14 @@ public class App extends Application {
     Button toLoginFromEmployeeStatsButton;
     Button seeEntireStats;
     Label workedHoursSummary;
+    TableView<EmployeeStatsModel> tableEmployeeStatsForPeriod;
+    ComboBox<String> comboEmployeeForPeriod;
+    DatePicker datePickerStart;
+    DatePicker datePickerEnd;
+    Label workedHoursSummaryForPeriod;
+    Button toLoginFromEmployeeStatsForPeriodButton;
+    Button clearCboxAndDatePickersButton;
+    Button applyFiltersButton;
     TabPane tabPane;
     Tab tabClient;
 
@@ -208,13 +217,12 @@ public class App extends Application {
         saveClientButton = new Button("Запази");
         saveClientButton.setMinWidth(80);
         saveClientButton.setOnAction(e -> saveClientButtonOnClick());
-        //saveClientButton.setDefaultButton(true);
         clearClientButton = new Button("Изчисти");
         clearClientButton.setMinWidth(80);
-        clearClientButton.setOnAction(e -> clearClientButtonOnClick() );                        //TODO
+        clearClientButton.setOnAction(e -> clearClientButtonOnClick());
         toLoginFromClientButton = new Button("Към логин екрана");
         toLoginFromClientButton.setMinWidth(80);
-        toLoginFromClientButton.setOnAction(e -> toLoginFromClientButtonOnClick());              //TODO
+        toLoginFromClientButton.setOnAction(e -> toLoginFromClientButtonOnClick());
 
         HBox paneBottomNewClient = new HBox(20, saveClientButton, clearClientButton, toLoginFromClientButton);
         paneBottomNewClient.setAlignment(Pos.CENTER);
@@ -264,10 +272,10 @@ public class App extends Application {
 
         saveEmployeeButton = new Button("Запази");
         saveEmployeeButton.setMinWidth(80);
-        saveEmployeeButton.setOnAction(e -> saveEmployeeButtonOnClick() );
+        saveEmployeeButton.setOnAction(e -> saveEmployeeButtonOnClick());
         clearEmployeeButton = new Button("Изчисти");
         clearEmployeeButton.setMinWidth(80);
-        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick() );
+        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick());
         toLoginFromEmployeeButton = new Button("Към логин екрана");
         toLoginFromEmployeeButton.setMinWidth(80);
         toLoginFromEmployeeButton.setOnAction(e -> toLoginFromEmployeeButtonOnClick());
@@ -296,18 +304,22 @@ public class App extends Application {
         loaderEmployees = new FXControlDataLoader("employees.txt");
         comboEmployee.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
         comboEmployee.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override public void changed(ObservableValue ov, String t, String t1) {
-                FXControlDataLoader tableUpdater = new FXControlDataLoader("protocols.txt", comboEmployee.getValue());
-                tableEmployeeStats.setItems(FXCollections.observableArrayList(tableUpdater.updateTableModel()));
-                seeEntireStats.setVisible(true);
-                workedHoursSummary.setVisible(true);
-                workedHoursSummary.setText(FXControlDataLoader.workedHoursSummary);
+            @Override
+            public void changed(ObservableValue ov, String t, String t1) {
+                if (comboEmployee.getValue() == null) {
+                } else {
+                    FXControlDataLoader tableUpdater = new FXControlDataLoader("protocols.txt", comboEmployee.getValue());
+                    tableEmployeeStats.setItems(FXCollections.observableArrayList(tableUpdater.updateTableModel()));
+                    seeEntireStats.setVisible(true);
+                    workedHoursSummary.setVisible(true);
+                    workedHoursSummary.setText(FXControlDataLoader.workedHoursSummary);
+                }
             }
         });
 
         seeEntireStats = new Button("За всички служители");
         seeEntireStats.setMinWidth(120);
-        seeEntireStats.setOnAction(e -> seeEntireStatsButtonOnClick() );
+        seeEntireStats.setOnAction(e -> seeEntireStatsButtonOnClick());
         seeEntireStats.setVisible(false);
         VBox emploeeStatsVbox = new VBox(20, comboEmployee, seeEntireStats);
 
@@ -328,7 +340,8 @@ public class App extends Application {
         columnWorkedHours.setCellValueFactory(
                 new PropertyValueFactory<EmployeeStatsModel, String>("WorkedHours"));
         columnWorkedHours.setMinWidth(150);
-        columnWorkedHours.setStyle( "-fx-alignment: CENTER;");
+        columnDate.setStyle("-fx-alignment: CENTER;");
+        columnWorkedHours.setStyle("-fx-alignment: CENTER;");
         tableEmployeeStats = new TableView<EmployeeStatsModel>();
         tableEmployeeStats.getColumns().addAll(columnEmployee, columnClient, columnDate, columnWorkedHours);
         loaderTable = new FXControlDataLoader("protocols.txt");
@@ -345,17 +358,7 @@ public class App extends Application {
         Region spacer = new Region();
         spacer.setPrefWidth(220);
 
-        /*
-        clearEmployeeButton = new Button("Изчисти");
-        clearEmployeeButton.setMinWidth(80);
-        clearEmployeeButton.setOnAction(e -> clearEmployeeButtonOnClick() );
-        toLoginFromEmployeeButton = new Button("Към логин екрана");
-        toLoginFromEmployeeButton.setMinWidth(80);
-        toLoginFromEmployeeButton.setOnAction(e -> toLoginFromEmployeeButtonOnClick());
-        */
-
-        HBox paneBottomEmployeeStats = new HBox(toLoginFromEmployeeStatsButton , spacer, workedHoursSummary);
-        //HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox paneBottomEmployeeStats = new HBox(toLoginFromEmployeeStatsButton, spacer, workedHoursSummary);
         paneBottomEmployeeStats.setAlignment(Pos.CENTER);
         paneBottomEmployeeStats.setPadding(new Insets(25, 10, 20, 350));
 
@@ -366,21 +369,102 @@ public class App extends Application {
         paneMainEmployeeStats.setBottom(paneBottomEmployeeStats);
         paneMainEmployeeStats.setPadding(new Insets(40, 10, 180, 10));
 
+        //tabEmoloyeeStatsForPeriod
+        Text textHeadingEmployeeStatsForPeriod = new Text("Изберете служител, начална и крайна дата");
+        textHeadingEmployeeStatsForPeriod.setFont(new Font("Verdana", 18));
+        HBox paneTopEmployeeStatsForPeriod = new HBox(textHeadingEmployeeStatsForPeriod);
+        paneTopEmployeeStatsForPeriod.setAlignment(Pos.CENTER);
+        paneTopEmployeeStatsForPeriod.setPadding(new Insets(10, 10, 25, 10));
+
+        Label labelEmployeeForPeriodCombo = new Label("Избери служител");
+
+        comboEmployeeForPeriod = new ComboBox<String>();
+        comboEmployeeForPeriod.setPromptText("Избери служител");
+        comboEmployeeForPeriod.setPrefWidth(140);
+        loaderEmployees = new FXControlDataLoader("employees.txt");
+        comboEmployeeForPeriod.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
+
+        Label dateStartLabel = new Label("Избери начална дата");
+        datePickerStart = new DatePicker();
+
+        Label dateEndLabel = new Label("Избери крайна дата");
+        datePickerEnd = new DatePicker();
+
+        clearCboxAndDatePickersButton = new Button("Изчисти филтъра");
+        clearCboxAndDatePickersButton.setOnAction(e -> clearCboxAndDatePickersButtonOnClick());
+        applyFiltersButton = new Button("Приложи филтъра");
+        applyFiltersButton.setOnAction(e -> applyFiltersButtonOnClick());
+
+
+        VBox datePickerStartVbox = new VBox(10, dateStartLabel, datePickerStart);
+        VBox datePickerEndVbox = new VBox(10, dateEndLabel, datePickerEnd);
+        VBox emploeeStatsVboxForPeriod = new VBox(20, comboEmployeeForPeriod, datePickerStartVbox, datePickerEndVbox, clearCboxAndDatePickersButton, applyFiltersButton);
+
+        TableColumn<EmployeeStatsModel, String> columnEmployeePeriod =
+                new TableColumn<EmployeeStatsModel, String>("СЛУЖИТЕЛ");
+        TableColumn<EmployeeStatsModel, String> columnClientPeriod =
+                new TableColumn<EmployeeStatsModel, String>("КЛИЕНТ");
+        TableColumn<EmployeeStatsModel, String> columnDatePeriod =
+                new TableColumn<EmployeeStatsModel, String>("ДАТА");
+        TableColumn<EmployeeStatsModel, String> columnWorkedHoursPeriod =
+                new TableColumn<EmployeeStatsModel, String>("РАБОТЕНО ВРЕМЕ");
+        columnEmployeePeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("EmployeeName"));
+        columnClientPeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("ClientName"));
+        columnDatePeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("Date"));
+        columnWorkedHoursPeriod.setCellValueFactory(
+                new PropertyValueFactory<EmployeeStatsModel, String>("WorkedHours"));
+        columnWorkedHoursPeriod.setMinWidth(150);
+        columnDatePeriod.setStyle("-fx-alignment: CENTER;");
+        columnWorkedHoursPeriod.setStyle("-fx-alignment: CENTER;");
+        tableEmployeeStatsForPeriod = new TableView<EmployeeStatsModel>();
+        tableEmployeeStatsForPeriod.getColumns().addAll(columnEmployeePeriod, columnClientPeriod, columnDatePeriod, columnWorkedHoursPeriod);
+        loaderTable = new FXControlDataLoader("protocols.txt");
+        tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
+        tableEmployeeStatsForPeriod.setMinWidth(650);
+        tableEmployeeStatsForPeriod.setMinHeight(300);
+
+        HBox paneCenterEmployeeStatsForPeriod = new HBox(20, emploeeStatsVboxForPeriod, tableEmployeeStatsForPeriod);
+        paneCenterEmployeeStatsForPeriod.setAlignment(Pos.TOP_CENTER);
+
+
+        toLoginFromEmployeeStatsForPeriodButton = new Button("Към логин екрана");
+        toLoginFromEmployeeStatsForPeriodButton.setMinWidth(80);
+        toLoginFromEmployeeStatsForPeriodButton.setOnAction(e -> toLoginFromEmployeeStatsForPeriodButtonOnClick());
+        workedHoursSummaryForPeriod = new Label();
+        Region spacerForPeriod = new Region();
+        spacerForPeriod.setPrefWidth(220);
+
+        HBox paneBottomEmployeeStatsForPeriod = new HBox(toLoginFromEmployeeStatsForPeriodButton, spacerForPeriod, workedHoursSummaryForPeriod);
+        paneBottomEmployeeStatsForPeriod.setAlignment(Pos.CENTER);
+        paneBottomEmployeeStatsForPeriod.setPadding(new Insets(25, 10, 20, 350));
+
+        BorderPane paneMainEmployeeStatsForPeriod = new BorderPane();
+        BorderPane.setMargin(paneBottomNewEmployee, new Insets(0, 0, 0, 70));
+        paneMainEmployeeStatsForPeriod.setTop(paneTopEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setCenter(paneCenterEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setBottom(paneBottomEmployeeStatsForPeriod);
+        paneMainEmployeeStatsForPeriod.setPadding(new Insets(40, 10, 180, 10));
+
 
         tabPane = new TabPane();
         tabClient = new Tab("Регистрирай нов клиент");
         Tab tabEmployee = new Tab("Регистрирай нов служител");
         Tab tabEmployeeStats = new Tab("Виж статистика за служител");
-        Tab tabStatsSummary = new Tab("Виж обща статистика");
+        Tab tabEmployeeStatsForPeriod = new Tab("Виж статистика за слувител за период");
         tabClient.setContent(paneMainClient);
         tabEmployee.setContent(paneMainEmployeeForm);
         tabEmployeeStats.setContent(paneMainEmployeeStats);
+        tabEmployeeStatsForPeriod.setContent(paneMainEmployeeStatsForPeriod);
 
         tabClient.setOnSelectionChanged(event -> {
             if (tabClient.isSelected()) {
                 saveClientButton.setDefaultButton(true);
                 saveEmployeeButton.setDefaultButton(false);
                 toLoginFromEmployeeStatsButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
             }
         });
 
@@ -389,6 +473,7 @@ public class App extends Application {
                 saveEmployeeButton.setDefaultButton(true);
                 saveClientButton.setDefaultButton(false);
                 toLoginFromEmployeeStatsButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
             }
         });
 
@@ -397,16 +482,25 @@ public class App extends Application {
                 toLoginFromEmployeeStatsButton.setDefaultButton(true);
                 saveClientButton.setDefaultButton(false);
                 saveEmployeeButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(false);
+            }
+        });
+
+        tabEmployeeStatsForPeriod.setOnSelectionChanged(event -> {
+            if (tabEmployeeStatsForPeriod.isSelected()) {
+                toLoginFromEmployeeStatsForPeriodButton.setDefaultButton(true);
+                saveClientButton.setDefaultButton(false);
+                saveEmployeeButton.setDefaultButton(false);
+                toLoginFromEmployeeStatsButton.setDefaultButton(false);
 
             }
         });
 
-
         tabClient.setClosable(false);
         tabEmployee.setClosable(false);
         tabEmployeeStats.setClosable(false);
-        tabStatsSummary.setClosable(false);
-        tabPane.getTabs().addAll(tabClient, tabEmployee, tabEmployeeStats, tabStatsSummary);
+        tabEmployeeStatsForPeriod.setClosable(false);
+        tabPane.getTabs().addAll(tabClient, tabEmployee, tabEmployeeStats, tabEmployeeStatsForPeriod);
         adminScene = new Scene(tabPane, 900, 500);
     }
 
@@ -524,6 +618,8 @@ public class App extends Application {
                 clientData[1] = textClientEmail.getText().trim();
                 FileContentsWriter writer = new FileContentsWriter("clients.txt", clientData);
                 writer.writeToFile();
+                loaderClients = new FXControlDataLoader("clients.txt");
+                comboClients.setItems(FXCollections.observableArrayList(loaderClients.setComboModel()));
             }
         } else {
             Alert a = new Alert(Alert.AlertType.WARNING, message);
@@ -532,12 +628,12 @@ public class App extends Application {
         }
     }
 
-    private  void clearClientButtonOnClick() {
+    private void clearClientButtonOnClick() {
         textClientName.setText("");
         textClientEmail.setText("");
     }
 
-    private  void toLoginFromClientButtonOnClick() {
+    private void toLoginFromClientButtonOnClick() {
         clearClientButtonOnClick();
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
@@ -547,7 +643,6 @@ public class App extends Application {
     private void saveEmployeeButtonOnClick() {
         DataValidator emailValidator = new DataValidator();
         AccountChecker emailChecker = new AccountChecker("employees.txt", textEmployeeEmail.getText().trim());
-        //ClientAndEmployeeChecker checker = new ClientAndEmployeeChecker(textEmployeeName.getText().trim(), textEmployeeEmail.getText().trim(), "emplyees.txt");
         String message = "";
         String[] employeeData = new String[3];
         if (textEmployeeName.getText().trim().length() == 0) {
@@ -586,6 +681,9 @@ public class App extends Application {
                 newEmployee[2] = textEmployeePassword.getText().trim();
                 FileContentsWriter writer = new FileContentsWriter("employees.txt", newEmployee);
                 writer.writeToFile();
+                loaderEmployees = new FXControlDataLoader("employees.txt");
+                comboEmployee.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
+                comboEmployeeForPeriod.setItems(FXCollections.observableArrayList(loaderEmployees.setComboModel()));
                 Alert a = new Alert(Alert.AlertType.INFORMATION, "Записът е успешен.");
                 a.setTitle("Валидация акаунт на нов служител");
                 a.showAndWait();
@@ -597,13 +695,17 @@ public class App extends Application {
         }
     }
 
-    private  void clearEmployeeButtonOnClick() {
+    private void clearEmployeeButtonOnClick() {
         textEmployeeName.setText("");
         textEmployeeEmail.setText("");
         textEmployeePassword.setText("");
     }
 
     private void toLoginFromEmployeeButtonOnClick() {
+        userFullName = "";
+        radioEmployee.setSelected(true);
+        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+        selectionModel.select(0);
         clearEmployeeButtonOnClick();
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
@@ -617,6 +719,8 @@ public class App extends Application {
         tableEmployeeStats.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
         comboEmployee.setValue(null);
         workedHoursSummary.setVisible(false);
+        userFullName = "";
+        radioEmployee.setSelected(true);
         stage.setScene(loginScene);
         stage.setTitle("Система за следене на работното време");
         stage.show();
@@ -628,5 +732,57 @@ public class App extends Application {
         seeEntireStats.setVisible(false);
         workedHoursSummary.setVisible(false);
         comboEmployee.setValue(null);
+    }
+
+    private void clearCboxAndDatePickersButtonOnClick() {
+        comboEmployeeForPeriod.setValue(null);
+        datePickerStart.setValue(null);
+        datePickerEnd.setValue(null);
+        workedHoursSummaryForPeriod.setText("");
+        loaderTable = new FXControlDataLoader("protocols.txt");
+        tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.setTableModel()));
+    }
+
+    private void applyFiltersButtonOnClick() {
+        String message = "";
+        if (comboEmployeeForPeriod.getValue() == null) {
+            message += "Не сте избрали служител! ";
+        }
+        if (datePickerStart.getValue() == null) {
+            message += "Не сте избрали начална дата! ";
+
+        }
+        if (datePickerEnd.getValue() == null) {
+            message += "Не сте избрали крайна дата! ";
+
+        }
+        if (message.length() == 0) {
+            LocalDate localDateStart = datePickerStart.getValue();
+            LocalDate localDateEnd = datePickerEnd.getValue();
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date dateStart = java.sql.Date.valueOf(localDateStart);
+            Date dateEnd = java.sql.Date.valueOf(localDateEnd);
+            String startDate = formatter.format(dateStart).toString();
+            String endDate = formatter.format(dateEnd).toString();
+            loaderTable = new FXControlDataLoader("protocols.txt", comboEmployeeForPeriod.getValue(), startDate, endDate);
+            tableEmployeeStatsForPeriod.setItems(FXCollections.observableArrayList(loaderTable.updateTableModelForPeriod()));
+            workedHoursSummaryForPeriod.setText(FXControlDataLoader.workedHoursSummaryForPeriod);
+        } else {
+            Alert a = new Alert(Alert.AlertType.WARNING, message);
+            a.setTitle("Търсене по служител и период");
+            a.showAndWait();
+        }
+    }
+
+    private void toLoginFromEmployeeStatsForPeriodButtonOnClick() {
+        clearCboxAndDatePickersButtonOnClick();
+        userFullName = "";
+        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+        selectionModel.select(0);
+        radioEmployee.setSelected(true);
+        stage.setScene(loginScene);
+        stage.setTitle("Система за следене на работното време");
+        stage.show();
+
     }
 }
